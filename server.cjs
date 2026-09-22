@@ -48,6 +48,29 @@ function escapeCsvField(val) {
   return `"${str}"`;
 }
 
+function formatToBeijingTime(isoStr) {
+  if (!isoStr) return "-";
+  try {
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) return String(isoStr);
+    // 转换为北京时间 (Asia/Shanghai, UTC+8)
+    const formatter = new Intl.DateTimeFormat("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+    // 部分 Node 环境下的格式可能是 2026/09/22 18:05:38
+    return formatter.format(d).replace(/\//g, "-");
+  } catch (e) {
+    return String(isoStr);
+  }
+}
+
 function escapeHtml(str) {
   if (!str) return "";
   return String(str)
@@ -162,13 +185,13 @@ const server = http.createServer((req, res) => {
     }
 
     const records = stmtAllForExport.all();
-    const headers = ["ID", "提交时间", "手机型号", "系统版本", "防守目标应用", "专注目标与痛点", "分配激活码", "用户IP"];
+    const headers = ["ID", "提交时间 (北京时间)", "手机型号", "系统版本", "防守目标应用", "专注目标与痛点", "分配激活码", "用户IP"];
     let csv = "\uFEFF" + headers.map(escapeCsvField).join(",") + "\r\n";
 
     for (const r of records) {
       const row = [
         r.id,
-        r.created_at,
+        formatToBeijingTime(r.created_at),
         r.phone_model,
         r.os_version,
         r.target_apps,
@@ -207,7 +230,7 @@ const server = http.createServer((req, res) => {
     const rowsHtml = records.map(r => `
       <tr>
         <td style="padding:12px 10px;border-bottom:1px solid #1E2822;color:#8F9B93;">${r.id}</td>
-        <td style="padding:12px 10px;border-bottom:1px solid #1E2822;font-family:monospace;font-size:12px;">${escapeHtml(r.created_at ? r.created_at.replace("T", " ").substring(0, 19) : "-")}</td>
+        <td style="padding:12px 10px;border-bottom:1px solid #1E2822;font-family:monospace;font-size:12px;white-space:nowrap;color:#C9D6CE;">${escapeHtml(formatToBeijingTime(r.created_at))}</td>
         <td style="padding:12px 10px;border-bottom:1px solid #1E2822;font-weight:600;color:#FFF;">${escapeHtml(r.phone_model || "-")}</td>
         <td style="padding:12px 10px;border-bottom:1px solid #1E2822;color:#A8B3AC;">${escapeHtml(r.os_version || "-")}</td>
         <td style="padding:12px 10px;border-bottom:1px solid #1E2822;"><span style="background:rgba(40,199,111,0.15);color:#28C76F;padding:2px 8px;border-radius:4px;font-size:12px;">${escapeHtml(r.target_apps || "-")}</span></td>
@@ -256,7 +279,7 @@ const server = http.createServer((req, res) => {
         <thead>
           <tr>
             <th>#</th>
-            <th>提交时间</th>
+            <th>提交时间 (北京时间)</th>
             <th>手机型号</th>
             <th>系统版本</th>
             <th>想防守的应用</th>
