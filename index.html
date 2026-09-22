@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>清醒一下 · 安卓端种子用户内测申请中心</title>
+  <style>
+    :root {
+      --bg: #080C0A;
+      --surface: #101713;
+      --surface-elevated: #16201B;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(229, 193, 88, 0.4);
+      --gold-primary: #E5C158;
+      --gold-dim: #9E853E;
+      --emerald: #28C76F;
+      --emerald-glow: rgba(40, 199, 111, 0.2);
+      --text-primary: #F0F4F1;
+      --text-secondary: #87998F;
+      --text-muted: #56665D;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      background-image: 
+        radial-gradient(100% 40% at 50% 0%, rgba(40, 199, 111, 0.12) 0%, transparent 100%),
+        radial-gradient(60% 40% at 80% 100%, rgba(229, 193, 88, 0.06) 0%, transparent 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 64px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    /* Header - Precision Industrial Style */
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 12px 0 8px;
+    }
+    .badge-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #18241D 0%, #0D1612 100%);
+      border: 1px solid rgba(229, 193, 88, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .header-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-subtitle {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold-primary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .header-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 10px;
+      line-height: 1.5;
+      max-width: 400px;
+    }
+
+    /* Card System */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+    }
+    .card-title-text {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #FFF;
+    }
+
+    /* Form Design - 8pt Spacing Grid */
+    .field {
+      margin-bottom: 16px;
+    }
+    .label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .input-text, .input-select {
+      width: 100%;
+      background: #0B100E;
+      border: 1px solid var(--border-subtle);
+      color: #FFF;
+      padding: 13px 14px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-text:focus, .input-select:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 2px rgba(229, 193, 88, 0.15);
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .app-choice {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 6px;
+      background: #0B100E;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .app-choice input {
+      display: none;
+    }
+    .app-choice.selected {
+      background: rgba(40, 199, 111, 0.14);
+      border-color: rgba(40, 199, 111, 0.5);
+      color: #FFF;
+      font-weight: 600;
+    }
+
+    /* Actions */
+    .btn-cta {
+      width: 100%;
+      background: linear-gradient(180deg, #E5C158 0%, #CFA53E 100%);
+      color: #080C0A;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: 0 8px 20px rgba(229, 193, 88, 0.25);
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-cta:active {
+      transform: scale(0.99);
+      opacity: 0.9;
+    }
+
+    /* Result Stage (Green Card) */
+    .result-section {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result-card {
+      background: linear-gradient(180deg, #13221A 0%, #0E1813 100%);
+      border: 1px solid rgba(40, 199, 111, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px var(--emerald-glow);
+      text-align: center;
+    }
+    .success-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(40, 199, 111, 0.15);
+      color: var(--emerald);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .result-headline {
+      font-size: 19px;
+      font-weight: 800;
+      color: #FFF;
+      margin-bottom: 6px;
+    }
+    .result-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .code-box {
+      background: #080D0B;
+      border: 1px solid rgba(229, 193, 88, 0.4);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin: 18px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .code-text {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold-primary);
+      letter-spacing: 0.08em;
+    }
+    .btn-copy {
+      background: rgba(229, 193, 88, 0.15);
+      border: 1px solid rgba(229, 193, 88, 0.35);
+      color: var(--gold-primary);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .instructions {
+      text-align: left;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #C2CEC6;
+      margin-bottom: 18px;
+    }
+    .instructions strong {
+      color: #FFF;
+    }
+    .btn-direct-download {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: var(--emerald);
+      color: #FFF;
+      text-decoration: none;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(40, 199, 111, 0.3);
+      transition: opacity 0.15s;
+      margin-bottom: 10px;
+    }
+    .btn-group-guide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 11px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Micro-modal for group info */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+    .modal-panel {
+      background: #121915;
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 24px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 8px;
+    }
+    .modal-body {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+    .wechat-id-pill {
+      background: #080D0B;
+      border: 1px dashed rgba(40, 199, 111, 0.5);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 15px;
+      color: var(--emerald);
+      margin: 10px 0;
+      user-select: all;
+    }
+    .btn-modal-close {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #FFF;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="badge-icon">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#E5C158" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+          <path d="M9 8h6l-3 4-3-4Z" fill="rgba(229, 193, 88, 0.3)"/>
+          <path d="M9 16h6l-3-4-3 4Z" fill="rgba(229, 193, 88, 0.3)"/>
+          <circle cx="12" cy="12" r="1.5" fill="#E5C158"/>
+        </svg>
+      </div>
+      <h1 class="header-title">清醒一下 · LUCID</h1>
+      <div class="header-subtitle">种子用户内测接入中心</div>
+      <p class="header-desc">在打开视频应用那一秒，唤醒认知镜像，做一次清醒的选择。</p>
+    </header>
+
+    <!-- Phase 1: Intake Form -->
+    <section class="card" id="formCard">
+      <div class="card-header">
+        <div class="status-indicator"></div>
+        <div class="card-title-text">设备适配排查 · 领取专属激活码</div>
+      </div>
+
+      <form id="intakeForm" onsubmit="submitIntake(event)">
+        <div class="field">
+          <label class="label" for="deviceModel">手机型号 (排查厂商后台调度)</label>
+          <input type="text" id="deviceModel" class="input-text" placeholder="如：小米 14、vivo X100、荣耀 Magic6、华为" required>
+        </div>
+
+        <div class="field">
+          <label class="label" for="systemVersion">系统环境</label>
+          <select id="systemVersion" class="input-select" required>
+            <option value="Android 15 (HyperOS 2 / OriginOS 5)">Android 15 (最新底层)</option>
+            <option value="Android 14 (HyperOS / OriginOS 4 / MagicOS 8)" selected>Android 14 (主流旗舰)</option>
+            <option value="Android 13 / HarmonyOS">Android 13 / 鸿蒙系统</option>
+            <option value="Android 12 及更早">Android 12 及更早</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="label">首要防守目标应用 (可多选)</label>
+          <div class="app-grid">
+            <label class="app-choice selected">
+              <input type="checkbox" name="apps" value="哔哩哔哩" checked onchange="handleToggle(this)"> 哔哩哔哩
+            </label>
+            <label class="app-choice selected">
+              <input type="checkbox" name="apps" value="抖音" checked onchange="handleToggle(this)"> 抖音
+            </label>
+            <label class="app-choice">
+              <input type="checkbox" name="apps" value="小红书" onchange="handleToggle(this)"> 小红书
+            </label>
+            <label class="app-choice">
+              <input type="checkbox" name="apps" value="快手" onchange="handleToggle(this)"> 快手
+            </label>
+            <label class="app-choice">
+              <input type="checkbox" name="apps" value="微博" onchange="handleToggle(this)"> 微博
+            </label>
+            <label class="app-choice">
+              <input type="checkbox" name="apps" value="全部短视频" onchange="handleToggle(this)"> 全部短视频
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="focusGoal">当前专注的核心事项</label>
+          <input type="text" id="focusGoal" class="input-text" placeholder="如：刷考研真题、备战资格考、减少无意识下滑" value="完成今日核心复习计划" required>
+        </div>
+
+        <button type="submit" class="btn-cta" id="btnSubmit">提交申请并派发激活码</button>
+      </form>
+    </section>
+
+    <!-- Phase 2: Green Glow Result Card -->
+    <section class="result-section" id="resultCard">
+      <div class="result-card">
+        <div class="success-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          资格签发成功
+        </div>
+        <div class="result-headline">专属内测激活码已就绪</div>
+        <div class="result-sub">包含端侧 483MB 离线大模型推理与云端深度复盘试用权</div>
+
+        <div class="code-box">
+          <span class="code-text" id="codeSlot">LUCID-BETA-7D-89F2A</span>
+          <button class="btn-copy" id="copyTrigger" onclick="copyCode()">一键复制</button>
+        </div>
+
+        <div class="instructions">
+          <strong>⚡ 上手激活路径：</strong><br>
+          1. 点击下方按钮下载 APK，安装若遇厂商安全提示请勾选“允许安装”；<br>
+          2. 打开 App，在系统无障碍列表中认准开启<strong>「清醒选择提醒」</strong>；<br>
+          3. 进入底部<strong>【认知镜像】➔【本地模型】</strong>粘贴本激活码激活！
+        </div>
+
+        <a href="https://www.pgyer.com/qingxingyixia" target="_blank" class="btn-direct-download" id="pgyerDownload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          下载安卓内测安装包 (蒲公英直达)
+        </a>
+
+        <button type="button" class="btn-group-guide" onclick="openModal()">
+          💬 微信内测交流群与 Bug 反馈通道
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- WeChat Community Modal -->
+  <div class="modal-backdrop" id="groupModal" onclick="closeModal(event)">
+    <div class="modal-panel" onclick="event.stopPropagation()">
+      <div class="modal-title">加入种子用户内测群</div>
+      <div class="modal-body">
+        与开发者直接沟通，排查厂商无障碍被杀后台问题，反馈 Bug 可直接兑换后续版本永久 VIP 权益。
+        <div class="wechat-id-pill">微信号：lucid_product</div>
+        <div>请添加微信备注：“清醒一下内测”</div>
+      </div>
+      <button class="btn-modal-close" onclick="closeModal()">我知道了</button>
+    </div>
+  </div>
+
+  <script>
+    const CODE_STORAGE_KEY = 'lucid_beta_user_record';
+
+    function handleToggle(el) {
+      if (el.checked) {
+        el.parentElement.classList.add('selected');
+      } else {
+        el.parentElement.classList.remove('selected');
+      }
+    }
+
+    function generateCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let suffix = '';
+      for (let i = 0; i < 5; i++) {
+        suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return 'LUCID-BETA-7D-' + suffix;
+    }
+
+    function submitIntake(e) {
+      e.preventDefault();
+      const model = document.getElementById('deviceModel').value.trim();
+      if (!model) return;
+
+      const code = generateCode();
+      renderSuccess(code);
+
+      // Save for anti-abuse & persistence
+      const record = {
+        model: model,
+        sys: document.getElementById('systemVersion').value,
+        goal: document.getElementById('focusGoal').value,
+        code: code,
+        issuedAt: new Date().toISOString()
+      };
+      localStorage.setItem(CODE_STORAGE_KEY, JSON.stringify(record));
+    }
+
+    function renderSuccess(code) {
+      document.getElementById('codeSlot').innerText = code;
+      document.getElementById('formCard').style.display = 'none';
+      document.getElementById('resultCard').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function copyCode() {
+      const code = document.getElementById('codeSlot').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyTrigger');
+        btn.innerText = '已复制!';
+        btn.style.background = 'var(--emerald)';
+        btn.style.color = '#FFF';
+        setTimeout(() => {
+          btn.innerText = '一键复制';
+          btn.style.background = 'rgba(229, 193, 88, 0.15)';
+          btn.style.color = 'var(--gold-primary)';
+        }, 2000);
+      });
+    }
+
+    function openModal() {
+      document.getElementById('groupModal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('groupModal').style.display = 'none';
+    }
+
+    // Restore state if visited before
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        const cached = localStorage.getItem(CODE_STORAGE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.code) {
+            renderSuccess(parsed.code);
+          }
+        }
+      } catch (err) {}
+    });
+  </script>
+</body>
+</html>
