@@ -490,8 +490,10 @@
       <div class="modal-title">加入种子用户内测群</div>
       <div class="modal-body">
         与开发者直接沟通，排查厂商无障碍被杀后台问题，反馈 Bug 可直接兑换后续版本永久 VIP 权益。
-        <div class="wechat-id-pill">微信号：lucid_product</div>
-        <div>请添加微信备注：“清醒一下内测”</div>
+        <div class="wechat-id-pill" onclick="copyWechat()" id="wechatPill" style="cursor: pointer;" title="点击复制微信号">
+          微信号：<strong>fbd_will</strong> <span style="font-size: 11px; opacity: 0.8; margin-left: 6px;">(点击复制)</span>
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">添加时请备注：“清醒一下内测”</div>
       </div>
       <button class="btn-modal-close" onclick="closeModal()">我知道了</button>
     </div>
@@ -563,6 +565,18 @@
     }
     function closeModal() {
       document.getElementById('groupModal').style.display = 'none';
+    }
+
+    function copyWechat() {
+      const wechat = 'fbd_will';
+      navigator.clipboard.writeText(wechat).then(() => {
+        const pill = document.getElementById('wechatPill');
+        pill.innerHTML = '已复制微信号: <strong>fbd_will</strong>，去微信添加！';
+        pill.style.borderColor = 'var(--emerald)';
+        setTimeout(() => {
+          pill.innerHTML = '微信号：<strong>fbd_will</strong> <span style=\"font-size: 11px; opacity: 0.8; margin-left: 6px;\">(点击复制)</span>';
+        }, 2500);
+      });
     }
 
     // Restore state if visited before
