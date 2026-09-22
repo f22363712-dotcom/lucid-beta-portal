@@ -519,23 +519,46 @@
       return 'LUCID-BETA-7D-' + suffix;
     }
 
+    // Formspree 云端数据收集 Endpoint (绑定邮箱: f22363712@gmail.com)
+    let FORMSPREE_ENDPOINT = 'https://formspree.io/f/mqkvanzp'; // 默认或填入您的Formspree Form ID
+
     function submitIntake(e) {
       e.preventDefault();
       const model = document.getElementById('deviceModel').value.trim();
       if (!model) return;
+
+      const selectedApps = [];
+      document.querySelectorAll('input[name="apps"]:checked').forEach(el => selectedApps.push(el.value));
 
       const code = generateCode();
       renderSuccess(code);
 
       // Save for anti-abuse & persistence
       const record = {
-        model: model,
-        sys: document.getElementById('systemVersion').value,
-        goal: document.getElementById('focusGoal').value,
-        code: code,
-        issuedAt: new Date().toISOString()
+        deviceModel: model,
+        androidVersion: document.getElementById('systemVersion').value,
+        targetApps: selectedApps.join(', ') || '未勾选',
+        focusGoal: document.getElementById('focusGoal').value,
+        inviteCode: code,
+        submittedAt: new Date().toLocaleString()
       };
       localStorage.setItem(CODE_STORAGE_KEY, JSON.stringify(record));
+
+      // Asynchronously post to Formspree backend (non-blocking)
+      if (FORMSPREE_ENDPOINT) {
+        fetch(FORMSPREE_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(record)
+        }).then(res => {
+          console.log('Formspree response status:', res.status);
+        }).catch(err => {
+          console.log('Formspree sync notice:', err);
+        });
+      }
     }
 
     function renderSuccess(code) {
