@@ -519,8 +519,8 @@
       return 'LUCID-BETA-7D-' + suffix;
     }
 
-    // Formspree 云端数据收集 Endpoint (绑定邮箱: f22363712@gmail.com)
-    let FORMSPREE_ENDPOINT = 'https://formspree.io/f/mqkvanzp'; // 默认或填入您的Formspree Form ID
+    // 自建云端 SQLite 数据持久化 Endpoint
+    const INTAKE_API_ENDPOINT = 'https://www.wisdomprime.com/lucid/api/intake/';
 
     function submitIntake(e) {
       e.preventDefault();
@@ -544,20 +544,29 @@
       };
       localStorage.setItem(CODE_STORAGE_KEY, JSON.stringify(record));
 
-      // Asynchronously post to Formspree backend (non-blocking)
-      if (FORMSPREE_ENDPOINT) {
-        fetch(FORMSPREE_ENDPOINT, {
+      // Asynchronously post to private cloud SQLite backend (non-blocking)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        fetch(INTAKE_API_ENDPOINT, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify(record)
+          body: JSON.stringify(record),
+          signal: controller.signal
         }).then(res => {
-          console.log('Formspree response status:', res.status);
+          clearTimeout(timeoutId);
+          return res.json();
+        }).then(data => {
+          console.log('云端数据入库成功:', data);
         }).catch(err => {
-          console.log('Formspree sync notice:', err);
+          console.warn('云端同步提示 (不影响前台领取):', err);
         });
+      } catch (err) {
+        console.warn('提交捕获:', err);
       }
     }
 
