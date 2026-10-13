@@ -249,6 +249,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
     }
     .code-text {
       font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
@@ -256,8 +257,11 @@
       font-weight: 800;
       color: var(--gold-primary);
       letter-spacing: 0.08em;
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
     .btn-copy {
+      flex-shrink: 0;
       background: rgba(229, 193, 88, 0.15);
       border: 1px solid rgba(229, 193, 88, 0.35);
       color: var(--gold-primary);
@@ -398,7 +402,7 @@
       <form id="intakeForm" onsubmit="submitIntake(event)">
         <div class="field">
           <label class="label" for="deviceModel">手机型号 (排查厂商后台调度)</label>
-          <input type="text" id="deviceModel" class="input-text" placeholder="如：小米 14、vivo X100、荣耀 Magic6、华为" required>
+          <input type="text" id="deviceModel" class="input-text" maxlength="128" placeholder="如：小米 14、vivo X100、荣耀 Magic6、华为" required>
         </div>
 
         <div class="field">
@@ -437,10 +441,12 @@
 
         <div class="field">
           <label class="label" for="focusGoal">当前专注的核心事项</label>
-          <input type="text" id="focusGoal" class="input-text" placeholder="如：刷考研真题、备战资格考、减少无意识下滑" value="完成今日核心复习计划" required>
+          <input type="text" id="focusGoal" class="input-text" maxlength="500" placeholder="如：刷考研真题、备战资格考、减少无意识下滑" value="完成今日核心复习计划" required>
         </div>
 
-        <button type="submit" class="btn-cta" id="btnSubmit">提交申请并派发激活码</button>
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">问卷用于设备适配排查和发放内测邀请码，云端保留 90 天。提交后不会扣款。</p>
+        <button type="submit" class="btn-cta" id="btnSubmit">提交申请并领取邀请码</button>
+        <p id="intakeStatus" role="status" aria-live="polite" style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-top: 12px;"></p>
       </form>
     </section>
 
@@ -451,13 +457,13 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          资格签发成功
+          内测邀请已发放
         </div>
-        <div class="result-headline">专属内测激活码已就绪</div>
-        <div class="result-sub">包含端侧 483MB 离线大模型推理与云端深度复盘试用权</div>
+        <div class="result-headline">专属内测邀请码已就绪</div>
+        <div class="result-sub">本地模型试用 7 天，云端复盘每天 5 次，每次需你确认发送当天记录。模型约 483 MB，需在应用内另行下载。</div>
 
         <div class="code-box">
-          <span class="code-text" id="codeSlot">LUCID-BETA-7D-89F2A</span>
+          <span class="code-text" id="codeSlot"></span>
           <button class="btn-copy" id="copyTrigger" onclick="copyCode()">一键复制</button>
         </div>
 
@@ -465,16 +471,17 @@
           <strong>⚡ 上手激活路径：</strong><br>
           1. 点击下方按钮下载 APK，安装若遇厂商安全提示请勾选“允许安装”；<br>
           2. 打开 App，在系统无障碍列表中认准开启<strong>「清醒选择提醒」</strong>；<br>
-          3. 进入底部<strong>【认知镜像】➔【本地模型】</strong>粘贴本激活码激活！
+          3. 进入底部<strong>【认知镜像】➔【权益与内测】</strong>，粘贴邀请码，点击“激活或恢复本地模型试用”；<br>
+          4. 进入<strong>【本地模型】</strong>下载模型，完成后选择本地离线复盘。
         </div>
 
-        <a href="https://www.pgyer.com/qingxingyixia" target="_blank" class="btn-direct-download" id="pgyerDownload">
+        <a href="https://www.wisdomprime.com/lucid/download" target="_blank" rel="noopener noreferrer" class="btn-direct-download" id="pgyerDownload">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          下载安卓内测安装包 (蒲公英直达)
+          下载最新版安卓内测应用
         </a>
 
         <button type="button" class="btn-group-guide" onclick="openModal()">
@@ -500,7 +507,11 @@
   </div>
 
   <script>
-    const CODE_STORAGE_KEY = 'lucid_beta_user_record';
+    const CODE_STORAGE_KEY = 'lucid_beta_server_invite_v2';
+    const INTAKE_API_ENDPOINT = 'https://www.wisdomprime.com/lucid/api/intake/';
+    const DOWNLOAD_PAGE_URL = 'https://www.wisdomprime.com/lucid/download';
+    let pendingRequest = null;
+    let submitting = false;
 
     function handleToggle(el) {
       if (el.checked) {
@@ -510,68 +521,82 @@
       }
     }
 
-    function generateCode() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      let suffix = '';
-      for (let i = 0; i < 5; i++) {
-        suffix += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return 'LUCID-BETA-7D-' + suffix;
+    function validReceipt(data) {
+      return data?.ok === true && /^invite_[A-Za-z0-9_-]{32}$/.test(data.inviteCode)
+        && data.downloadPageUrl === DOWNLOAD_PAGE_URL && data.trialDays === 7 && data.dailyLimit === 5;
     }
 
-    // 自建云端 SQLite 数据持久化 Endpoint
-    const INTAKE_API_ENDPOINT = 'https://www.wisdomprime.com/lucid/api/intake/';
-
-    function submitIntake(e) {
+    async function submitIntake(e) {
       e.preventDefault();
+      if (submitting) return;
+      const status = document.getElementById('intakeStatus');
       const model = document.getElementById('deviceModel').value.trim();
-      if (!model) return;
-
+      const goal = document.getElementById('focusGoal').value.trim();
+      if (!model || !goal) { status.textContent = '请填写手机型号和当前专注事项。'; return; }
       const selectedApps = [];
       document.querySelectorAll('input[name="apps"]:checked').forEach(el => selectedApps.push(el.value));
-
-      const code = generateCode();
-      renderSuccess(code);
-
-      // Save for anti-abuse & persistence
-      const record = {
+      const answers = {
         deviceModel: model,
-        androidVersion: document.getElementById('systemVersion').value,
-        targetApps: selectedApps.join(', ') || '未勾选',
-        focusGoal: document.getElementById('focusGoal').value,
-        inviteCode: code,
-        submittedAt: new Date().toLocaleString()
+        systemVersion: document.getElementById('systemVersion').value,
+        apps: selectedApps.join(', ') || '未勾选',
+        focusGoal: goal
       };
-      localStorage.setItem(CODE_STORAGE_KEY, JSON.stringify(record));
-
-      // Asynchronously post to private cloud SQLite backend (non-blocking)
+      const fingerprint = JSON.stringify(answers);
+      if (!pendingRequest || pendingRequest.fingerprint !== fingerprint) {
+        pendingRequest = {requestId:crypto.randomUUID(), fingerprint};
+      }
+      submitting = true;
+      const button = document.getElementById('btnSubmit');
+      button.disabled = true;
+      button.textContent = '正在领取邀请码…';
+      status.textContent = '正在连接内测服务，请稍候。';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        fetch(INTAKE_API_ENDPOINT, {
+        const response = await fetch(INTAKE_API_ENDPOINT, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(record),
+          headers: {'Content-Type':'application/json', 'Accept':'application/json'},
+          body: JSON.stringify({requestId:pendingRequest.requestId, ...answers}),
           signal: controller.signal
-        }).then(res => {
-          clearTimeout(timeoutId);
-          return res.json();
-        }).then(data => {
-          console.log('云端数据入库成功:', data);
-        }).catch(err => {
-          console.warn('云端同步提示 (不影响前台领取):', err);
         });
-      } catch (err) {
-        console.warn('提交捕获:', err);
+        const data = await response.json();
+        if (!response.ok || data?.ok !== true) {
+          if (response.status === 429 && data?.error?.code === 'intake_budget_exceeded') {
+            throw new Error('今天的 20 张内测邀请已领完，请明天再来。你的填写内容已保留。');
+          }
+          if (response.status === 429) throw new Error('申请较频繁，请稍后再试。你的填写内容已保留。');
+          if (response.status === 409) {
+            pendingRequest = null;
+            throw new Error('申请信息已变化，请重新提交。你的填写内容已保留。');
+          }
+          if (response.status === 410) {
+            pendingRequest = null;
+            throw new Error('旧申请回执已过期，请重新申请。你的填写内容已保留。');
+          }
+          throw new Error('内测服务暂时无法发码，请稍后重试。你的填写内容已保留。');
+        }
+        if (!validReceipt(data)) throw new Error('服务回执未通过核验，请稍后重试。');
+        const receipt = {ok:true, inviteCode:data.inviteCode, downloadPageUrl:data.downloadPageUrl,
+          trialDays:data.trialDays, dailyLimit:data.dailyLimit};
+        try { localStorage.setItem(CODE_STORAGE_KEY, JSON.stringify({version:2, receivedAt:Date.now(), receipt, answers})); } catch (_) {}
+        renderSuccess(receipt);
+      } catch (error) {
+        status.textContent = error.name === 'AbortError' ? '连接超时，请重试。你的填写内容已保留。'
+          : error instanceof TypeError ? '网络连接失败，请检查网络后重试。你的填写内容已保留。'
+          : error.name === 'SyntaxError' ? '服务返回的内容暂时无法读取，请稍后重试。'
+          : error.message || '暂时无法领取邀请码，请稍后重试。';
+      } finally {
+        clearTimeout(timeoutId);
+        submitting = false;
+        button.disabled = false;
+        button.textContent = '提交申请并领取邀请码';
       }
     }
 
-    function renderSuccess(code) {
-      document.getElementById('codeSlot').innerText = code;
+    function renderSuccess(receipt) {
+      if (!validReceipt(receipt)) return;
+      document.getElementById('codeSlot').innerText = receipt.inviteCode;
+      document.getElementById('pgyerDownload').href = receipt.downloadPageUrl;
       document.getElementById('formCard').style.display = 'none';
       document.getElementById('resultCard').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -611,14 +636,30 @@
       });
     }
 
-    // Restore state if visited before
     window.addEventListener('DOMContentLoaded', () => {
       try {
+        localStorage.removeItem('lucid_beta_user_record');
         const cached = localStorage.getItem(CODE_STORAGE_KEY);
         if (cached) {
           const parsed = JSON.parse(cached);
-          if (parsed && parsed.code) {
-            renderSuccess(parsed.code);
+          if (parsed?.version === 2 && parsed.answers) {
+            for (const id of ['deviceModel', 'systemVersion', 'focusGoal']) {
+              if (typeof parsed.answers[id] === 'string') document.getElementById(id).value = parsed.answers[id];
+            }
+            if (typeof parsed.answers.apps === 'string') {
+              const selected = parsed.answers.apps.split(', ');
+              document.querySelectorAll('input[name="apps"]').forEach(input => {
+                input.checked = selected.includes(input.value);
+                handleToggle(input);
+              });
+            }
+          }
+          const age = Date.now() - parsed?.receivedAt;
+          if (parsed?.version === 2 && Number.isFinite(parsed.receivedAt) && age >= 0 && age < 7*86400000
+              && validReceipt(parsed.receipt)) renderSuccess(parsed.receipt);
+          else {
+            localStorage.removeItem(CODE_STORAGE_KEY);
+            document.getElementById('intakeStatus').textContent = '旧邀请码已过期，请重新申请。你的填写内容已保留。';
           }
         }
       } catch (err) {}
