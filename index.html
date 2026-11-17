@@ -392,11 +392,25 @@
       <p class="header-desc">在打开视频应用那一秒，唤醒认知镜像，做一次清醒的选择。</p>
     </header>
 
+    <!-- Phase 0: Zero-Friction Direct Download Banner -->
+    <section class="card" id="directDownloadCard" style="border-color: rgba(40, 199, 111, 0.28);">
+      <div class="card-header" style="margin-bottom: 10px;">
+        <div class="status-indicator"></div>
+        <div class="card-title-text">免邀请码 · 直接下载体验基础守护与本机三风格模型</div>
+      </div>
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.65;">
+        日常分心拦截、60 秒呼吸，以及约 447 MB 的离线「冷镜 / 知交 / 铮友」三风格建议（装进自己手机芯片里，开启飞行模式也能用、半个字不上云，体积约等于相册两段一分钟高清视频，不用可随时一键清空）<strong>均免费且无需邀请码</strong>。下方问卷仅用于申请每天 5 次的云端复盘体验额度。
+      </p>
+      <a href="https://www.wisdomprime.com/lucid/download" target="_blank" rel="noopener noreferrer" class="btn-direct-download" style="margin-top: 12px;">
+        直接前往官方下载页（免填问卷先装应用）
+      </a>
+    </section>
+
     <!-- Phase 1: Intake Form -->
     <section class="card" id="formCard">
       <div class="card-header">
-        <div class="status-indicator"></div>
-        <div class="card-title-text">设备适配排查 · 领取专属激活码</div>
+        <div class="status-indicator" style="background: var(--gold-primary); box-shadow: 0 0 10px rgba(229, 193, 88, 0.4);"></div>
+        <div class="card-title-text">可选申请 · 领取每天 5 次云端复盘内测额度</div>
       </div>
 
       <form id="intakeForm" onsubmit="submitIntake(event)">
@@ -459,8 +473,8 @@
           </svg>
           内测邀请已发放
         </div>
-        <div class="result-headline">专属内测邀请码已就绪</div>
-        <div class="result-sub">本地模型试用 7 天，云端复盘每天 5 次，每次需你确认发送当天记录。模型约 483 MB，需在应用内另行下载。</div>
+        <div class="result-headline">专属云端内测邀请码已就绪</div>
+        <div class="result-sub">包含每天 5 次云端复盘内测额度（每次需你确认发送当天目标与放行统计）。提示：基础防护及约 447 MB 的「冷镜 / 知交 / 铮友」本机离线模型均免费且免邀请码开放。</div>
 
         <div class="code-box">
           <span class="code-text" id="codeSlot"></span>
@@ -469,10 +483,9 @@
 
         <div class="instructions">
           <strong>⚡ 上手激活路径：</strong><br>
-          1. 点击下方按钮下载 APK，安装若遇厂商安全提示请勾选“允许安装”；<br>
-          2. 打开 App，在系统无障碍列表中认准开启<strong>「清醒选择提醒」</strong>；<br>
-          3. 进入底部<strong>【认知镜像】➔【权益与内测】</strong>，粘贴邀请码，点击“激活或恢复本地模型试用”；<br>
-          4. 进入<strong>【本地模型】</strong>下载模型，完成后选择本地离线复盘。
+          1. 若尚未安装应用，点击下方按钮下载安装包，安装若遇提示请勾选“允许安装”；<br>
+          2. 打开应用并开启<strong>「清醒选择提醒」</strong>无障碍权限，基础拦截即可生效；在底部【认知镜像】➔【本地模型】可免码下载约 447 MB 离线三风格大脑；<br>
+          3. 如需使用云端复盘：点击上方<strong>「一键复制」</strong>，打开应用进入<strong>【认知镜像】➔【回看今天】➔【云端复盘】</strong>，会自动检测剪贴板并支持一键填入连接。
         </div>
 
         <a href="https://www.wisdomprime.com/lucid/download" target="_blank" rel="noopener noreferrer" class="btn-direct-download" id="pgyerDownload">
